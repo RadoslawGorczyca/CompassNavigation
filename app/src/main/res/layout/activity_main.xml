@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/image_compass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/compass"
+        app:layout_constraintBottom_toTopOf="@id/buttons"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/image_needle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/needle"
+        android:padding="116dp"
+        app:layout_constraintTop_toTopOf="@id/image_compass"
+        app:layout_constraintBottom_toBottomOf="@id/image_compass"
+        app:layout_constraintStart_toStartOf="@id/image_compass"
+        app:layout_constraintEnd_toEndOf="@id/image_compass"/>
+
+    <TextView
+        android:id="@+id/text_provideLatLng"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="116dp"
+        android:text="PROVIDE LAT AND LONG"
+        app:layout_constraintTop_toTopOf="@id/image_compass"
+        app:layout_constraintBottom_toBottomOf="@id/image_compass"
+        app:layout_constraintStart_toStartOf="@id/image_compass"
+        app:layout_constraintEnd_toEndOf="@id/image_compass"/>
+
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:padding="8dp">
+
+        <Button
+            android:id="@+id/button_latitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/latitude"
+            android:layout_weight="1"
+            style="@style/Widget.AppCompat.Button.Colored"/>
+
+        <Button
+            android:id="@+id/button_longitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/longitude"
+            android:layout_weight="1"
+            style="@style/Widget.AppCompat.Button.Colored"/>
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
