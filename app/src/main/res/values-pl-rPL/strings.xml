@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Compass Navigation</string>
+    <string name="latitude">Szerokość</string>
+    <string name="latitude_hint">Szerokość…</string>
+    <string name="longitude">Długość</string>
+    <string name="longitude_hint">Długość…</string>
+    <string name="text_location_permission">Aplikacja wymaga pozwolenia na wykrywanie lokalizacji urządzenia. Wyrażasz zgodę?</string>
+    <string name="title_location_permission">Pozwolenie na wykrywanie lokalizacji</string>
+    <string name="error">Błąd</string>
+    <string name="error_with_sensor">Nie można zebrać informacji z sensorów.</string>
+</resources>

@@ -1,7 +1,11 @@
 <resources>
-    <string name="app_name">CompassNavigation</string>
+    <string name="app_name">Compass Navigation</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="title_location_permission">Location permission</string>
     <string name="text_location_permission">App needs location permission. Would you like to give it?</string>
+    <string name="latitude_hint">Latitude…</string>
+    <string name="longitude_hint">Longitude…</string>
+    <string name="error">Error</string>
+    <string name="error_with_sensor">Can\'t get sensor info.</string>
 </resources>

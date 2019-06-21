@@ -4,13 +4,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +17,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,6 +36,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     ImageView imageCompass;
     @BindView(R.id.text_provideLatLng)
     TextView textProvideLatLng;
+    @BindView(R.id.label_latitude)
+    TextView labelLatitude;
+    @BindView(R.id.label_longitude)
+    TextView labelLongitude;
 
     private Compass compass;
     protected LocationManager locationManager;
@@ -55,20 +57,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        checkLocationPermission();
+        Compass compass = new Compass(this);
 
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        if (checkLocationPermission()) {
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            setupCompass();
+        }
 
 
-        setupCompass();
     }
 
 
     @Override
     protected void onPause() {
         super.onPause();
-        compass.stop();
+        if (compass != null) {
+            compass.stop();
+        }
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -80,7 +86,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     protected void onResume() {
         super.onResume();
-        compass.start();
+        if (compass != null) {
+            compass.start();
+        }
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -123,11 +131,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
             bearingTo = currentLocation.bearingTo(targetLocation);
 
-            if (bearingTo < 0) {
+            /*if (bearingTo < 0) {
                 bearingTo = bearingTo + 360;
-            }
+            }*/
 
-            Animation an2 = new RotateAnimation(-oldBearingTo, -bearingTo,
+            Animation an2 = new RotateAnimation(oldBearingTo, bearingTo,
                     Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
                     0.5f);
 
@@ -193,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -202,23 +210,56 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         Manifest.permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED) {
 
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
+                    locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                    setupCompass();
                 }
 
             } else {
-                return;
+                finish();
             }
         }
     }
 
     @OnClick(R.id.button_longitude)
     public void onButtonLongitudeClick() {
+        EditTextDialog dialogHelper = new EditTextDialog();
+        final AlertDialog dialog = dialogHelper.getInputDialog(this, EditTextDialog.INPUT_LONGITUDE);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                EditText editText = dialog.findViewById(R.id.editTextDialog);
+                if (editText != null) {
+                    destinationLong =  Float.valueOf(editText.getText().toString());
+                }
+                if(destinationLong != 0){
+                    labelLongitude.setText(String.valueOf(destinationLong));
+                }
+                dialog.dismiss();
+            }
+        });
 
     }
 
     @OnClick(R.id.button_latitude)
     public void onButtonLatitudeClick() {
+        EditTextDialog dialogHelper = new EditTextDialog();
+        final AlertDialog dialog = dialogHelper.getInputDialog(this, EditTextDialog.INPUT_LATITUDE);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                EditText editText = dialog.findViewById(R.id.editTextDialog);
+                if (editText != null) {
+                    destinationLat =  Float.valueOf(editText.getText().toString());
+                }
+                if(destinationLat != 0){
+                    labelLatitude.setText(String.valueOf(destinationLat));
+                }
+                dialog.dismiss();
+            }
+        });
     }
 
     @Override
@@ -240,4 +281,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void onProviderDisabled(String s) {
 
     }
+
+
 }

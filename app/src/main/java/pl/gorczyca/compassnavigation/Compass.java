@@ -1,10 +1,14 @@
 package pl.gorczyca.compassnavigation;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 
 public class Compass implements SensorEventListener {
     public interface CompassListener {
@@ -16,16 +20,20 @@ public class Compass implements SensorEventListener {
     private SensorManager sensorManager;
     private Sensor gsensor;
     private Sensor msensor;
+    private Context context;
 
     private float[] mGravity = new float[3];
     private float[] mGeomagnetic = new float[3];
     private float[] R = new float[9];
     private float[] I = new float[9];
 
+    private int numberOfTries = 0;
+
     private float azimuth;
     private float azimuthFix;
 
     public Compass(Context context) {
+        this.context = context;
         sensorManager = (SensorManager) context
                 .getSystemService(Context.SENSOR_SERVICE);
         gsensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -90,6 +98,7 @@ public class Compass implements SensorEventListener {
             boolean success = SensorManager.getRotationMatrix(R, I, mGravity,
                     mGeomagnetic);
             if (success) {
+                numberOfTries = 0;
                 float[] orientation = new float[3];
                 SensorManager.getOrientation(R, orientation);
                 // Log.d(TAG, "azimuth (rad): " + azimuth);
@@ -98,6 +107,23 @@ public class Compass implements SensorEventListener {
                 // Log.d(TAG, "azimuth (deg): " + azimuth);
                 if (listener != null) {
                     listener.onNewAzimuth(azimuth);
+                }
+            } else {
+                numberOfTries++;
+
+                if(numberOfTries > 10){
+                    this.stop();
+                    new AlertDialog.Builder(context)
+                            .setTitle(pl.gorczyca.compassnavigation.R.string.error)
+                            .setMessage(pl.gorczyca.compassnavigation.R.string.error_with_sensor)
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            })
+                            .create()
+                            .show();
                 }
             }
         }
