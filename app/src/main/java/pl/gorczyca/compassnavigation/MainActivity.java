@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -43,12 +44,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private Compass compass;
     protected LocationManager locationManager;
-    protected LocationListener locationListener;
 
     private float currentAzimuth;
     private Location currentLocation;
-    private float destinationLat;
-    private float destinationLong;
+    private float destinationLat = -200;
+    private float destinationLong = -200;
     private float bearingTo;
 
     @Override
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         imageNeedle.setVisibility(View.GONE);
         textProvideLatLng.setVisibility(View.VISIBLE);
-        if (currentLocation != null && destinationLat != 0 && destinationLong != 0) {
+        if (currentLocation != null && destinationLat != -200 && destinationLong != -200) {
 
             imageNeedle.setVisibility(View.VISIBLE);
             textProvideLatLng.setVisibility(View.GONE);
@@ -130,10 +130,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             float oldBearingTo = bearingTo;
 
             bearingTo = currentLocation.bearingTo(targetLocation);
-
-            /*if (bearingTo < 0) {
-                bearingTo = bearingTo + 360;
-            }*/
 
             Animation an2 = new RotateAnimation(oldBearingTo, bearingTo,
                     Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
@@ -201,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -223,41 +219,72 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @OnClick(R.id.button_longitude)
     public void onButtonLongitudeClick() {
-        EditTextDialog dialogHelper = new EditTextDialog();
-        final AlertDialog dialog = dialogHelper.getInputDialog(this, EditTextDialog.INPUT_LONGITUDE);
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                EditText editText = dialog.findViewById(R.id.editTextDialog);
-                if (editText != null) {
-                    destinationLong =  Float.valueOf(editText.getText().toString());
-                }
-                if(destinationLong != 0){
-                    labelLongitude.setText(String.valueOf(destinationLong));
-                }
-                dialog.dismiss();
-            }
-        });
-
+        handleInput(EditTextDialog.INPUT_LONGITUDE);
     }
 
     @OnClick(R.id.button_latitude)
     public void onButtonLatitudeClick() {
+        handleInput(EditTextDialog.INPUT_LATITUDE);
+    }
+
+    private void handleInput(final int whichInput) {
         EditTextDialog dialogHelper = new EditTextDialog();
-        final AlertDialog dialog = dialogHelper.getInputDialog(this, EditTextDialog.INPUT_LATITUDE);
+        final AlertDialog dialog = dialogHelper.getInputDialog(this, whichInput);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                float inputToCheck;
+                boolean valueCorrect = true;
+
                 EditText editText = dialog.findViewById(R.id.editTextDialog);
-                if (editText != null) {
-                    destinationLat =  Float.valueOf(editText.getText().toString());
+                final TextInputLayout inputLayout = dialog.findViewById(R.id.editTextDialogLayout);
+
+
+                if (editText != null && inputLayout != null) {
+                    inputToCheck = Float.valueOf(editText.getText().toString());
+                    editText.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            inputLayout.setErrorEnabled(false);
+                        }
+                    });
+
+                    switch (whichInput) {
+                        case EditTextDialog.INPUT_LATITUDE:
+                            if (inputToCheck < -90.0 || inputToCheck > 90.0) {
+
+                                inputLayout.setError(getText(R.string.input_error_latitude_out_of_bound));
+                                inputLayout.setErrorEnabled(true);
+                                valueCorrect = false;
+
+                            }
+
+                            if (valueCorrect) {
+                                destinationLat = inputToCheck;
+                                labelLatitude.setText(String.valueOf(destinationLat));
+                                dialog.dismiss();
+                            }
+                            break;
+                        case EditTextDialog.INPUT_LONGITUDE:
+                            if (inputToCheck < -180.0 || inputToCheck > 180.0) {
+
+                                inputLayout.setError(getText(R.string.input_error_longitude_out_of_bound));
+                                inputLayout.setErrorEnabled(true);
+                                valueCorrect = false;
+
+                            }
+
+                            if (valueCorrect) {
+                                destinationLong = inputToCheck;
+                                labelLongitude.setText(String.valueOf(destinationLong));
+                                dialog.dismiss();
+                            }
+                            break;
+                    }
+
+
                 }
-                if(destinationLat != 0){
-                    labelLatitude.setText(String.valueOf(destinationLat));
-                }
-                dialog.dismiss();
             }
         });
     }

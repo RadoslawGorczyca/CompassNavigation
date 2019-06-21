@@ -8,4 +8,7 @@
     <string name="longitude_hint">Longitude…</string>
     <string name="error">Error</string>
     <string name="error_with_sensor">Can\'t get sensor info.</string>
+    <string name="input_error_latitude_out_of_bound">Possible values are between -90.0 and 90.0</string>
+    <string name="input_error_longitude_out_of_bound">Possible values are between -180.0 and 180.0</string>
+    <string name="error_no_sensor">Device incompatible. Couldn\'t find sensor.</string>
 </resources>

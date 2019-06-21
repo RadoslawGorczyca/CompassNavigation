@@ -1,13 +1,12 @@
 package pl.gorczyca.compassnavigation;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 
 public class Compass implements SensorEventListener {
@@ -32,12 +31,27 @@ public class Compass implements SensorEventListener {
     private float azimuth;
     private float azimuthFix;
 
-    public Compass(Context context) {
+    public Compass(final Context context) {
         this.context = context;
         sensorManager = (SensorManager) context
                 .getSystemService(Context.SENSOR_SERVICE);
         gsensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         msensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        PackageManager manager = context.getPackageManager();
+        boolean hasCompass = manager.hasSystemFeature(PackageManager.FEATURE_SENSOR_COMPASS);
+        if(!hasCompass){
+            new AlertDialog.Builder(context)
+                    .setTitle(pl.gorczyca.compassnavigation.R.string.error)
+                    .setMessage(pl.gorczyca.compassnavigation.R.string.error_no_sensor)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    })
+                    .create()
+                    .show();
+            this.stop();
+        }
     }
 
     public void start() {
@@ -76,14 +90,9 @@ public class Compass implements SensorEventListener {
                         * event.values[1];
                 mGravity[2] = alpha * mGravity[2] + (1 - alpha)
                         * event.values[2];
-
-                // mGravity = event.values;
-
-                // Log.e(TAG, Float.toString(mGravity[0]));
             }
 
             if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-                // mGeomagnetic = event.values;
 
                 mGeomagnetic[0] = alpha * mGeomagnetic[0] + (1 - alpha)
                         * event.values[0];
@@ -91,9 +100,10 @@ public class Compass implements SensorEventListener {
                         * event.values[1];
                 mGeomagnetic[2] = alpha * mGeomagnetic[2] + (1 - alpha)
                         * event.values[2];
-                // Log.e(TAG, Float.toString(event.values[0]));
 
             }
+
+
 
             boolean success = SensorManager.getRotationMatrix(R, I, mGravity,
                     mGeomagnetic);
@@ -101,10 +111,8 @@ public class Compass implements SensorEventListener {
                 numberOfTries = 0;
                 float[] orientation = new float[3];
                 SensorManager.getOrientation(R, orientation);
-                // Log.d(TAG, "azimuth (rad): " + azimuth);
                 azimuth = (float) Math.toDegrees(orientation[0]); // orientation
                 azimuth = (azimuth + azimuthFix + 360) % 360;
-                // Log.d(TAG, "azimuth (deg): " + azimuth);
                 if (listener != null) {
                     listener.onNewAzimuth(azimuth);
                 }
@@ -124,6 +132,7 @@ public class Compass implements SensorEventListener {
                             })
                             .create()
                             .show();
+
                 }
             }
         }

@@ -9,4 +9,7 @@
     <string name="title_location_permission">Pozwolenie na wykrywanie lokalizacji</string>
     <string name="error">Błąd</string>
     <string name="error_with_sensor">Nie można zebrać informacji z sensorów.</string>
+    <string name="input_error_latitude_out_of_bound">Możliwe wartości pomiędzy -90.0 a 90.0</string>
+    <string name="input_error_longitude_out_of_bound">Możliwe wartości pomiędzy -180.0 a 180.0</string>
+    <string name="error_no_sensor">Urządzenie niekompatybilne. Nie można znaleźć sensorów.</string>
 </resources>
